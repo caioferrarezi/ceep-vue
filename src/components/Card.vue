@@ -1,7 +1,7 @@
 <template>
-    <article class="card text-left" :style="{'background-color': config.color}">
+    <article class="card text-left" :class="[config.color]">
         <div class="card-body">
-          <template v-if="editable == false">
+          <template v-if="editable == false && config.firstTime == false">
             <h2 class="card-title">{{ config.title }}</h2>
             <p class="card-text">{{ config.text }}</p>
 
@@ -22,7 +22,16 @@
 
             <div class="form-group">
               <label for="color">Color</label>
-              <input type="text" class="form-control" id="color" v-model="config.color">              
+              <select id="color" class="form-control" v-model="config.color">
+                <option value="bg-light">Light Gray</option>
+                <option value="bg-secondary text-white">Dark Gray</option>
+                <option value="bg-dark text-white">Black</option>
+                <option value="bg-primary text-white">Blue</option>
+                <option value="bg-success text-white">Green</option>
+                <option value="bg-info text-white">Light Green</option>
+                <option value="bg-danger text-white">Red</option>
+                <option value="bg-warning">Yellow</option>
+              </select>
             </div>
 
             <button class="btn btn-success" type="submit">Save</button>
@@ -38,10 +47,10 @@ import { db } from "../main";
 
 export default {
   name: "Card",
-  props: ['config'],
+  props: ['config', 'searched'],
   data() {
     return {
-      editable: false
+      editable: false,
     };
   },
   methods: {
@@ -50,6 +59,7 @@ export default {
     },
     saveChanges (id) {
       db.collection('cards').doc(id).update({
+        firstTime: false,
         title: this.config.title,
         text: this.config.text,
         color: this.config.color,
