@@ -3,11 +3,11 @@
         <router-link to="/" class="navbar-brand">Ceep</router-link>
 
         <div class="d-flex align-items-center">
-        <form class="form-inline my-2 my-lg-0" @submit.prevent="sendSearch">
-            <input class="form-control mr-sm-2" v-model="search" type="search" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-light my-2 my-sm-0" type="submit">Search</button>
+        <form class="form-inline text-white my-2 my-lg-0" @input.prevent="sendSearch">
+            <label for="search">Type your search:</label>
+            <input class="form-control ml-sm-2" v-model="search" type="search" placeholder="Search" aria-label="Search">
         </form>
-        <button class="btn btn-dark ml-5" @click.prevent="addNew">Add new card</button>
+        <button class="btn btn-light ml-5" @click.prevent="addNew" :disabled="btnNew">Add new card</button>
         </div>
     </nav>
 </template>
@@ -17,12 +17,15 @@ import { db } from '../main'
 
 export default {
     name: 'Nav',
+    props: {
+        btnNew: Boolean
+    },
     data () {
         return {
             title: "",
             text: "",
             color: "",
-            search: ""
+            search: this.$route.query.key
         }
     },
     methods: {
