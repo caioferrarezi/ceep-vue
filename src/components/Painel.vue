@@ -1,13 +1,18 @@
 <template>
   <div class="hello">
-    <Nav @search="search"></Nav>
+    <Nav @search="search" :btn-new="query.length !== 0"></Nav>
     <div class="container">
       <div class="row justify-content-center mb-4">
         <h1 class="sr-only">{{ msg }}</h1>
       </div>
-      <div class="row justify-content-start">
+      <div class="row justify-content-start" v-if="query.length === 0">
         <div class="col-12 col-md-8 col-lg-4 my-3" v-for="(card, i) in cards" :key="i">
-          <Card :config="card"></Card>
+            <Card :config="card"></Card>
+        </div>
+      </div>
+      <div class="row justify-content-start" v-else>
+        <div class="col-12 col-md-8 col-lg-4 my-3" v-for="(card, i) in searchCards" :key="i">
+            <Card :config="card"></Card>
         </div>
       </div>
     </div>
@@ -25,21 +30,23 @@ export default {
     return {
       msg: "Welcome to Ceep",
       cards: [],
-      auxCards: [],
+      query: '',
     };
   },
   components: {
     Nav,
     Card
   },
+  computed: {
+    searchCards: function () {
+      return this.cards.filter((item) => {
+        return item.title.toLowerCase().indexOf(this.query.trim().toLowerCase()) !== -1;
+      })
+    }
+  },
   methods: {
     search: function(src) {
-      this.$router.replace({
-        path: 'search',
-        query: {
-          key: src.key
-        }
-      });
+      this.query = src.key;
     }
   },
   firestore() {
@@ -52,4 +59,14 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
+
+.fadeUp-enter-active,
+.fadeUp-leave-active {
+    transition: all 0.5s;
+}
+.fadeUp-enter,
+.fadeUp-leave-to {
+    opacity: 0;
+    transform: translateY(-10px);
+}
 </style>
