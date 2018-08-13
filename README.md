@@ -1,6 +1,10 @@
-# ceep
+# Ceep Vue
 
-> A Vue.js project
+Vue project based on Ceep project from [Caelum's JS course](https://www.caelum.com.br/curso-javascript-jquery). 
+
+This will be in constantly development to learn and practice Vuejs framework. Feel free to sugest changes, fork and modify.
+
+It will be available for demo soon.
 
 ## Build Setup
 
