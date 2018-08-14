@@ -24,7 +24,7 @@ export default {
         return {
             title: "",
             text: "",
-            color: "",
+            badge: {},
             search: this.$route.query.key
         }
     },
@@ -35,7 +35,10 @@ export default {
                 firstTime: true,
                 title: this.title,
                 text: this.text,
-                color: this.color,
+                badge: {
+                    label: '',
+                    class: '',
+                },
                 createdAt
             });
         },

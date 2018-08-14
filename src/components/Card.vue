@@ -1,12 +1,13 @@
 <template>
-    <article class="card text-left" :class="[config.color]">
+    <article class="card bg-light text-left">
         <template v-if="editable == false && config.firstTime == false">
           <div class="card-body">
-            <h2 class="card-title">{{ config.title }}</h2>
+            <span class="badge" :class="[config.badge.class]">{{ capitalize(config.badge.label) }}</span>
+            <h2 class="h4 card-title mt-1">{{ config.title }}</h2>
             <p class="card-text">{{ config.text }}</p>
           </div>
           <div class="card-header text-right">
-            <button class="btn btn-light" @click="editCard()">Edit card</button>
+            <button class="btn btn-primary" @click="editCard()">Edit card</button>
           </div>
         </template>
         <template v-else>
@@ -23,22 +24,15 @@
               </div>
 
               <div class="form-group">
-                <label for="color">Color</label>
-                <select id="color" class="form-control" v-model="config.color">
-                  <option value="bg-light">Light Gray</option>
-                  <option value="bg-secondary text-white">Dark Gray</option>
-                  <option value="bg-dark text-white">Black</option>
-                  <option value="bg-primary text-white">Blue</option>
-                  <option value="bg-success text-white">Green</option>
-                  <option value="bg-info text-white">Light Green</option>
-                  <option value="bg-danger text-white">Red</option>
-                  <option value="bg-warning">Yellow</option>
+                <label for="color">Badge</label>
+                <select id="color" class="form-control" v-model="config.badge">
+                  <option v-for="badge in badges" :value="badge.label + ' ' +badge.class" :key="badge.label">{{ badge.label }}</option>
                 </select>
               </div>
             </div>
 
             <div class="card-footer text-right">
-              <button class="btn btn-danger" @click="removeCard(config.id)">Delete</button>
+              <button class="btn btn-light" @click="removeCard(config.id)">Delete</button>
               <button class="btn btn-primary" type="submit">Save card</button>
             </div>
           </form>
@@ -55,7 +49,8 @@ export default {
   data() {
     return {
       editable: false,
-      isChanged: false
+      isChanged: false,
+      badges: []
     };
   },
   methods: {
@@ -68,7 +63,8 @@ export default {
           firstTime: false,
           title: this.config.title,
           text: this.config.text,
-          color: this.config.color,
+          'badge.label': this.config.badge.split(' ')[0],
+          'badge.class': this.config.badge.split(' ')[1],
         });
 
         this.isChanged = false;
@@ -78,8 +74,13 @@ export default {
     editCard () {
       this.editable = true;
     },
-    cancel () {
-      this.editable = false;
+    capitalize: function (string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+  },
+  firestore () {
+    return {
+      badges: db.collection('badges')
     }
   }
 };
