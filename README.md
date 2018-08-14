@@ -4,7 +4,7 @@ Vue project based on Ceep project from [Caelum's JS course](https://www.caelum.c
 
 This will be in constantly development to learn and practice Vuejs framework. Feel free to sugest changes, fork and modify.
 
-It will be available for demo soon.
+Demo is available [here](http://caioferrarezi.me/ceep-vue/).
 
 ## Build Setup
 
