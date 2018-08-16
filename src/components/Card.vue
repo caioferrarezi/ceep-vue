@@ -1,8 +1,9 @@
 <template>
     <article class="card bg-light text-left">
+      
         <template v-if="editable == false && config.firstTime == false">
           <div class="card-body">
-            <span class="badge" :class="[config.badge.class]">{{ capitalize(config.badge.label) }}</span>
+            <span class="badge text-light" :class="[config.badge.class]">{{ config.badge.label | capitalize }}</span>
             <h2 class="h4 card-title mt-1">{{ config.title }}</h2>
             <p class="card-text">{{ config.text }}</p>
           </div>
@@ -10,12 +11,21 @@
             <button class="btn btn-primary" @click="editCard()">Edit card</button>
           </div>
         </template>
+
         <template v-else>
           <form @submit.prevent="saveChanges(config.id)" @input="isChanged = true">
             <div class="card-body">
+
+              <div class="form-group">
+                <div class="d-inline-block custom-radio mr-2" v-for="badge in badges" :key="badge.label">
+                  <input :id="badge.label" type="radio" v-model="cat" :value="badge.label">
+                  <label :for="badge.label" class="badge text-light" :class="badge.class">{{ badge.label | capitalize }}</label>
+                </div>
+              </div>
+
               <div class="form-group">
                 <label for="title">Title</label>
-                <input type="text" class="form-control" id="title" v-model="config.title">
+                <input v-validate="required" type="text" class="form-control" id="title" v-model="config.title">
               </div>
 
               <div class="form-group">
@@ -23,20 +33,15 @@
                 <textarea v-model="config.text" id='desc' class="form-control"></textarea>
               </div>
 
-              <div class="form-group">
-                <label for="color">Badge</label>
-                <select id="color" class="form-control" v-model="config.badge">
-                  <option v-for="badge in badges" :value="badge.label + ' ' +badge.class" :key="badge.label">{{ badge.label }}</option>
-                </select>
-              </div>
             </div>
 
             <div class="card-footer text-right">
-              <button class="btn btn-light" @click="removeCard(config.id)">Delete</button>
+              <button class="btn btn-link" @click="removeCard(config.id)">Delete</button>
               <button class="btn btn-primary" type="submit">Save card</button>
             </div>
           </form>
         </template>
+
     </article>
 </template>
 
@@ -45,12 +50,16 @@ import { db } from "../main";
 
 export default {
   name: "Card",
-  props: ['config', 'searched'],
+  props: [
+    'config', 
+    'searched',
+    'badges'
+  ],
   data() {
     return {
       editable: false,
-      isChanged: false,
-      badges: []
+      badges: [],
+      cat: '',
     };
   },
   methods: {
@@ -58,29 +67,33 @@ export default {
       db.collection("cards").doc(id).delete();
     },
     saveChanges (id) {
-      if ( this.isChanged === true ) {
-        db.collection('cards').doc(id).update({
-          firstTime: false,
-          title: this.config.title,
-          text: this.config.text,
-          'badge.label': this.config.badge.split(' ')[0],
-          'badge.class': this.config.badge.split(' ')[1],
-        });
+      db.collection('cards').doc(id).update({
+        firstTime: false,
+        title: this.config.title,
+        text: this.config.text,
+        badge: this.computedBadge[0],
+      });
 
-        this.isChanged = false;
-      } 
       this.editable = false;
     },
     editCard () {
       this.editable = true;
     },
-    capitalize: function (string) {
-      return string.charAt(0).toUpperCase() + string.slice(1);
+  },
+  mounted () {
+    this.cat = this.config.badge.label;
+  },
+  computed: {
+    computedBadge: function() {
+      return this.badges.filter((badge) => {
+        return badge.label == this.cat;
+      });
     }
   },
-  firestore () {
-    return {
-      badges: db.collection('badges')
+  filters: {
+    capitalize: function (string) {
+      if (!string) return '';
+      return string.charAt(0).toUpperCase() + string.slice(1);
     }
   }
 };
@@ -88,4 +101,22 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
+
+.custom-radio {
+    position: relative;
+}
+.custom-radio input {
+    opacity: 0;
+    position: absolute;
+}
+.custom-radio .badge {
+    cursor: pointer;
+    padding: 4px 6px;
+    transition: all .15s ease;
+}
+.custom-radio input:checked ~ .badge,
+.custom-radio .badge:hover {
+    box-shadow: inset 0 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
 </style>
