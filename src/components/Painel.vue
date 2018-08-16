@@ -5,14 +5,9 @@
       <div class="row justify-content-center mb-4">
         <h1 class="sr-only">{{ msg }}</h1>
       </div>
-      <div class="row justify-content-start" v-if="query.length === 0">
-        <div class="col-12 col-md-8 col-lg-4 my-3" v-for="(card, i) in cards" :key="i">
-            <Card :config="card"></Card>
-        </div>
-      </div>
-      <div class="row justify-content-start" v-else>
+      <div class="row justify-content-start">
         <div class="col-12 col-md-8 col-lg-4 my-3" v-for="(card, i) in searchCards" :key="i">
-            <Card :config="card"></Card>
+            <Card :config="card" :badges="badges"></Card>
         </div>
       </div>
     </div>
@@ -51,7 +46,8 @@ export default {
   },
   firestore() {
     return {
-      cards: db.collection("cards").orderBy("createdAt", "desc")
+      cards: db.collection("cards").orderBy("createdAt", "desc"),
+      badges: db.collection('badges')
     };
   }
 };
