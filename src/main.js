@@ -5,10 +5,13 @@ import App from './App'
 import router from './router'
 
 import VueFire from 'vuefire'
-import firebase from 'firebase'
+import firebase from 'firebase/app'
 import 'firebase/firestore'
 
+import validate from 'vee-validate'
+
 Vue.use(VueFire);
+Vue.use(validate);
 
 firebase.initializeApp({
   apiKey: "AIzaSyBQwmb80k6ztD6usBuExADwaUfPBM668UU",
