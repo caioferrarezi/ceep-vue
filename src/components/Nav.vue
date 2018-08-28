@@ -22,8 +22,8 @@ export default {
     },
     data () {
         return {
-            title: "",
-            text: "",
+            title: "Novo cartão",
+            text: "Edite o titulo e adicione uma nova descrição",
             badge: {},
             search: this.$route.query.key
         }
@@ -31,7 +31,7 @@ export default {
     methods: {
         addNew () {
             const createdAt = new Date();
-            db.collection('cards').add({
+            this.$firestoreRefs.cards.add({
                 firstTime: true,
                 title: this.title,
                 text: this.text,
@@ -40,10 +40,15 @@ export default {
                     class: '',
                 },
                 createdAt
-            });
+            })
         },
         sendSearch: function () {
             this.$emit('search', {key: this.search})
+        }
+    },
+    firestore () {
+        return {
+            cards: db.collection('cards'),
         }
     }
 }
