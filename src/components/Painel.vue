@@ -7,7 +7,7 @@
       </div>
       <div class="row justify-content-start">
         <div class="col-12 col-md-8 col-lg-4 my-3" v-for="(card, i) in searchCards" :key="i">
-            <Card :config="card" :badges="badges"></Card>
+            <Card :config="card" :badges="badges" :key="card.id"></Card>
         </div>
       </div>
     </div>
@@ -37,12 +37,12 @@ export default {
       return this.cards.filter((item) => {
         return item.title.toLowerCase().indexOf(this.query.trim().toLowerCase()) !== -1;
       })
-    }
+    },
   },
   methods: {
     search: function(src) {
       this.query = src.key;
-    }
+    },
   },
   firestore() {
     return {
