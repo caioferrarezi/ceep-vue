@@ -1,16 +1,35 @@
 <template>
-  <div class="hello">
+  <div class="painel">
     <Nav @search="search" :btn-new="query.length !== 0"></Nav>
-    <div class="container">
-      <div class="row justify-content-center mb-4">
-        <h1 class="sr-only">{{ msg }}</h1>
-      </div>
-      <div class="row justify-content-start">
-        <div class="col-12 col-md-8 col-lg-4 my-3" v-for="(card, i) in searchCards" :key="i">
-            <Card :config="card" :badges="badges" :key="card.id"></Card>
+
+    <transition name="fade" mode="out-in">
+
+      <template v-if="fire">
+        <p class="load-content mt-5">
+          <span class="spinner">
+            <span class="bounce bounce1"></span>
+            <span class="bounce bounce2"></span>
+            <span class="bounce bounce3"></span>
+          </span> 
+          <span class="sr-only">Loading...</span>
+        </p>
+      </template>
+
+      <template v-if="!fire">
+        <div class="container">
+          <div class="row justify-content-center mb-4">
+            <h1 class="sr-only">{{ msg }}</h1>
+          </div>
+          <div class="row justify-content-start">
+            <div class="col-12 col-md-8 col-lg-4 my-3" v-for="(card, i) in searchCards" :key="i">
+              <Card :config="card" :badges="badges" :key="card.id" @saved="updateData" @deleted="updateData" />
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      </template>
+
+    </transition>
+
   </div>
 </template>
 
@@ -23,14 +42,18 @@ export default {
   name: "Painel",
   data() {
     return {
-      msg: "Welcome to Ceep",
+      msg: "",
       cards: [],
       query: '',
+      fire: true
     };
   },
   components: {
     Nav,
     Card
+  },
+  mounted () {
+    this.updateData();
   },
   computed: {
     searchCards: function () {
@@ -43,10 +66,27 @@ export default {
     search: function(src) {
       this.query = src.key;
     },
+    updateData: function () {
+      this.fire = true;
+      this.cards = [];
+
+      db
+      .collection("cards")
+      .orderBy("createdAt", "desc")
+      .get()
+      .then((docRef) => {
+        docRef.forEach((doc) => {
+          let card = doc.data();
+          card.id = doc.id
+          this.cards.push(card);
+        });
+        this.fire = false;
+      });
+    }
   },
   firestore() {
     return {
-      cards: db.collection("cards").orderBy("createdAt", "desc"),
+      //cards: db.collection("cards").orderBy("createdAt", "desc"),
       badges: db.collection('badges')
     };
   }
@@ -56,13 +96,4 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
 
-.fadeUp-enter-active,
-.fadeUp-leave-active {
-    transition: all 0.5s;
-}
-.fadeUp-enter,
-.fadeUp-leave-to {
-    opacity: 0;
-    transform: translateY(-10px);
-}
 </style>
