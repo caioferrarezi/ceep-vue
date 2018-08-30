@@ -13,7 +13,7 @@
         </article>
       </template>
 
-      <transition name="show-card">
+      <transition name="fade">
         <template v-if="editable == true || config.firstTime == true">
           <div class="card-modal">
             <div class="card bg-light text-left" @click.stop>
@@ -48,6 +48,15 @@
                     <button class="btn btn-primary" type="submit">Save card</button>
                   </div>
                 </div>
+
+                <p class="load-content m-0" v-if="resp === false">
+                  <span class="spinner">
+                    <span class="bounce bounce1"></span>
+                    <span class="bounce bounce2"></span>
+                    <span class="bounce bounce3"></span>
+                  </span> 
+                  <span class="sr-only">Loading...</span>
+                </p>
               </form>
             </div>
           </div>
@@ -69,28 +78,32 @@ export default {
   data() {
     return {
       editable: false,
-      title: '',
-      text: '',
-      cat: '',
+      resp: null,
     };
   },
   methods: {
     removeCard (id) {
-      db.collection("cards").doc(id).delete();
-      this.editable = false;
+      db.collection("cards").doc(id).delete().then(() => {
+        this.$emit('deleted');
+        this.editable = false;
+      });
     },
     saveChanges (id) {
+      this.resp = false;
       db.collection('cards').doc(id).update({
         firstTime: false,
         title: this.config.title,
         text: this.config.text,
         badge: this.computedBadge[0],
       }).then(docRef => {
-        alert('Card succesfully written')
+        setTimeout(() => {
+          this.$emit('saved');
+          this.editable = false;
+          this.resp = null;
+        }, 1000)
       }).catch(error => {
         console.log(error);
       });
-      this.editable = false;
     },
     editCard () {
       this.editable = true;
@@ -119,6 +132,21 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+  .load-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+</style>
+
+
 <style>
 
 .card-modal {
@@ -156,22 +184,6 @@ export default {
 .custom-radio input:checked ~ .badge,
 .custom-radio .badge:hover {
     box-shadow: inset 0 0 0 20px rgba(0, 0, 0, 0.3);
-}
-
-.show-card-enter-active {
-  animation: showCard 0.3s ease;
-}
-.show-card-leave-active {
-  animation: showCard 0.3s ease reverse;
-}
-
-@keyframes showCard {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
 }
 
 </style>
