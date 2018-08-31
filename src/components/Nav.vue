@@ -20,27 +20,9 @@ export default {
     props: {
         btnNew: Boolean
     },
-    data () {
-        return {
-            title: "Novo cartão",
-            text: "Edite o titulo e adicione uma nova descrição",
-            badge: {},
-            search: this.$route.query.key
-        }
-    },
     methods: {
         addNew () {
-            const createdAt = new Date();
-            this.$firestoreRefs.cards.add({
-                firstTime: true,
-                title: this.title,
-                text: this.text,
-                badge: {
-                    label: '',
-                    class: '',
-                },
-                createdAt
-            })
+            this.$emit('addCard');
         },
         sendSearch: function () {
             this.$emit('search', {key: this.search})

@@ -88,34 +88,43 @@ export default {
 
         this.$emit('deleted');
         this.editable = false;
-        
+
       });
     },
     saveChanges (id) {
       this.resp = false;
-
-      db.collection('cards').doc(id).update({
-
-        firstTime: false,
-        title: this.config.title,
-        text: this.config.text,
-        badge: this.computedBadge[0],
-
-      }).then(docRef => {
-
-        setTimeout(() => {
-
-          this.$emit('saved');
-          this.editable = false;
-          this.resp = null;
-
-        }, 1000)
-
-      }).catch(error => {
-
-        console.log(error);
-
-      });
+      if (id) {
+        db.collection('cards').doc(id).update({
+          firstTime: false,
+          title: this.config.title,
+          text: this.config.text,
+          badge: this.computedBadge[0],
+        }).then(docRef => {
+          setTimeout(() => {
+            this.$emit('saved');
+            this.editable = false;
+            this.resp = null;
+          }, 1000)
+        }).catch(error => {
+          console.log(error);
+        });
+      } else {
+        db.collection('cards').add({
+          firstTime: false,
+          title: this.config.title,
+          text: this.config.text,
+          badge: this.computedBadge[0],
+          createdAt: this.config.createdAt
+        }).then(docRef => {
+          setTimeout(() => {
+            this.$emit('saved');
+            this.editable = false;
+            this.resp = null;
+          }, 1000)
+        }).catch(error => {
+          console.log(error);
+        });
+      }
     },
     editCard () {
       this.editable = true;

@@ -1,6 +1,6 @@
 <template>
   <div class="painel">
-    <Nav @search="search" :btn-new="query.length !== 0"></Nav>
+    <Nav @search="search" :btn-new="query.length !== 0" @addCard="addNew"></Nav>
 
     <transition name="fade" mode="out-in">
 
@@ -75,6 +75,19 @@ export default {
     },
   },
   methods: {
+    addNew: function () {
+      const createdAt = new Date();
+      this.cards.unshift({
+          firstTime: true,
+          title: "Novo cartão",
+          text: "Edite o titulo e adicione uma nova descrição",
+          badge: {
+              label: '',
+              class: '',
+          },
+          createdAt
+      })
+    },
     search: function(src) {
       this.query = src.key;
     },
