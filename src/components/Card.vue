@@ -3,7 +3,7 @@
       <template>
         <article class="card bg-light text-left" @click.stop>
           <div class="card-body">
-            <span class="badge text-light" :class="[config.badge.class]">{{ config.badge.label | capitalize }}</span>
+            <span class="badge text-light" :class="[config.badge.class]">{{ config.badge.label }}</span>
             <h2 class="h4 card-title mt-1">{{ config.title }}</h2>
             <p class="card-text">{{ config.text }}</p>
           </div>
@@ -21,9 +21,9 @@
                 <div class="card-body">
 
                   <div class="form-group">
-                    <div class="d-inline-block custom-radio mr-2" v-for="badge in badges" :key="badge.label">
-                      <input :id="badge.label" type="radio" v-model="cat" :value="badge.label">
-                      <label :for="badge.label" class="badge text-light" :class="badge.class">{{ badge.label | capitalize }}</label>
+                    <div class="d-inline-block custom-radio mr-2" v-for="badge in badges" :key="badge.id">
+                      <input :id="badge.id" type="radio" v-model="cat" :value="badge.id">
+                      <label :for="badge.id" class="badge text-light" :class="badge.class">{{ badge.label }}</label>
                     </div>
                   </div>
 
@@ -79,30 +79,42 @@ export default {
     return {
       editable: false,
       resp: null,
+      cat: '',
     };
   },
   methods: {
     removeCard (id) {
       db.collection("cards").doc(id).delete().then(() => {
+
         this.$emit('deleted');
         this.editable = false;
+        
       });
     },
     saveChanges (id) {
       this.resp = false;
+
       db.collection('cards').doc(id).update({
+
         firstTime: false,
         title: this.config.title,
         text: this.config.text,
         badge: this.computedBadge[0],
+
       }).then(docRef => {
+
         setTimeout(() => {
+
           this.$emit('saved');
           this.editable = false;
           this.resp = null;
+
         }, 1000)
+
       }).catch(error => {
+
         console.log(error);
+
       });
     },
     editCard () {
@@ -113,7 +125,7 @@ export default {
     }
   },
   mounted () {
-    this.cat = this.config.badge.label;
+    this.cat = this.config.badge.id;
   },
   computed: {
     computedBadge: function() {
@@ -122,12 +134,6 @@ export default {
       });
     }
   },
-  filters: {
-    capitalize: function (string) {
-      if (!string) return '';
-      return string.charAt(0).toUpperCase() + string.slice(1);
-    }
-  }
 };
 </script>
 

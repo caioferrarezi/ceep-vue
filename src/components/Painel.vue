@@ -45,7 +45,8 @@ export default {
       msg: "",
       cards: [],
       query: '',
-      fire: true
+      fire: true,
+      badges: [],
     };
   },
   components: {
@@ -54,6 +55,17 @@ export default {
   },
   mounted () {
     this.updateData();
+
+    db
+    .collection('badges')
+    .get()
+    .then(docRef => {
+      docRef.forEach(doc => {
+        let badge = doc.data();
+        badge.id = doc.id;
+        this.badges.push(badge);
+      })
+    });
   },
   computed: {
     searchCards: function () {
@@ -84,12 +96,12 @@ export default {
       });
     }
   },
-  firestore() {
-    return {
-      //cards: db.collection("cards").orderBy("createdAt", "desc"),
-      badges: db.collection('badges')
-    };
-  }
+  // firestore() {
+  //   return {
+  //     //cards: db.collection("cards").orderBy("createdAt", "desc"),
+  //     //badges: db.collection('badges')
+  //   };
+  // }
 };
 </script>
 
