@@ -15,7 +15,7 @@
         </p>
       </template>
 
-      <template v-if="!fire">
+      <template v-else-if="!fire">
         <div class="container">
           <div class="row justify-content-center mb-4">
             <h1 class="sr-only">{{ msg }}</h1>
@@ -53,27 +53,6 @@ export default {
     Nav,
     Card
   },
-  mounted () {
-    this.updateData();
-
-    db
-    .collection('badges')
-    .get()
-    .then(docRef => {
-      docRef.forEach(doc => {
-        let badge = doc.data();
-        badge.id = doc.id;
-        this.badges.push(badge);
-      })
-    });
-  },
-  computed: {
-    searchCards: function () {
-      return this.cards.filter((item) => {
-        return item.title.toLowerCase().indexOf(this.query.trim().toLowerCase()) !== -1;
-      })
-    },
-  },
   methods: {
     addNew: function () {
       const createdAt = new Date();
@@ -81,10 +60,7 @@ export default {
           firstTime: true,
           title: "Novo cartão",
           text: "Edite o titulo e adicione uma nova descrição",
-          badge: {
-              label: '',
-              class: '',
-          },
+          badgesId: [],
           createdAt
       })
     },
@@ -108,6 +84,27 @@ export default {
         this.fire = false;
       });
     }
+  },
+  mounted () {
+    this.updateData();
+
+    db
+    .collection('badges')
+    .get()
+    .then(docRef => {
+      docRef.forEach(doc => {
+        let badge = doc.data();
+        badge.id = doc.id;
+        this.badges.push(badge);
+      })
+    });
+  },
+  computed: {
+    searchCards: function () {
+      return this.cards.filter((item) => {
+        return item.title.toLowerCase().indexOf(this.query.trim().toLowerCase()) !== -1;
+      })
+    },
   },
   // firestore() {
   //   return {
