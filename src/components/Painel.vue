@@ -22,7 +22,14 @@
           </div>
           <div class="row justify-content-start">
             <div class="col-12 col-md-8 col-lg-4 my-3" v-for="(card, i) in searchCards" :key="i">
-              <Card :config="card" :badges="badges" :key="card.id" @saved="updateData" @deleted="updateData" />
+              <Card 
+              :config="card" 
+              :badges="badges" 
+              :key="card.id" 
+              @saved="updateData" 
+              @deleted="updateData" 
+              @canceled="removeLastCard"
+              />
             </div>
           </div>
         </div>
@@ -37,12 +44,13 @@
 import Nav from "@/components/Nav";
 import Card from "@/components/Card";
 import { db } from "../main";
+import { auth } from "../main";
 
 export default {
   name: "Painel",
   data() {
     return {
-      msg: "",
+      msg: "Welcome do Ceep",
       cards: [],
       query: '',
       fire: true,
@@ -82,11 +90,27 @@ export default {
           this.cards.push(card);
         });
         this.fire = false;
+      })
+      .catch( () => {
+        
       });
+    },
+    removeLastCard: function() {
+      this.cards.shift();
     }
   },
   mounted () {
-    this.updateData();
+    auth.signInAnonymously().catch( error => {
+      console.log(error);
+      return;
+    });
+
+    auth.onAuthStateChanged( user => {
+      if (user) {
+        this.updateData();
+        console.log(user);
+      }
+    });
 
     db
     .collection('badges')
