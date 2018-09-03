@@ -6,6 +6,7 @@ import router from './router'
 
 import VueFire from 'vuefire'
 import firebase from 'firebase/app'
+import 'firebase/auth'
 import 'firebase/firestore'
 
 //import validate from 'vee-validate'
@@ -23,6 +24,7 @@ firebase.initializeApp({
 });
 
 export const db = firebase.firestore();
+export const auth = firebase.auth();
 
 Vue.config.productionTip = false;
 
