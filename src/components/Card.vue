@@ -3,8 +3,14 @@
       <template>
         <article class="card bg-light text-left" @click.stop>
           <div class="card-body">
-            <span class="badge text-light" :class="[config.badge.class]">{{ config.badge.label }}</span>
-            <h2 class="h4 card-title mt-1">{{ config.title }}</h2>
+            <span 
+            class="badge text-light mr-2" 
+            v-for="badge in cardBadges"
+            :class='[badge.class]'
+            :key="badge.id">
+                  {{ badge.label }}
+            </span>
+            <h2 class="h4 card-title my-2">{{ config.title }}</h2>
             <p class="card-text">{{ config.text }}</p>
           </div>
           <div class="card-footer text-right">
@@ -22,7 +28,7 @@
 
                   <div class="form-group">
                     <div class="d-inline-block custom-radio mr-2" v-for="badge in badges" :key="badge.id">
-                      <input :id="badge.id" type="radio" v-model="cat" :value="badge.id">
+                      <input :id="badge.id" type="checkbox" v-model="cat" :value="badge.id">
                       <label :for="badge.id" class="badge text-light" :class="badge.class">{{ badge.label }}</label>
                     </div>
                   </div>
@@ -79,41 +85,52 @@ export default {
     return {
       editable: false,
       resp: null,
-      cat: '',
+      cat: [],
     };
   },
   methods: {
+    // método para deletar um card
     removeCard (id) {
-      db.collection("cards").doc(id).delete().then(() => {
-
-        this.$emit('deleted');
-        this.editable = false;
-
+      this.resp = false; //inicia o load
+      db //firestore
+      .collection("cards") // coleção 'cards'
+      .doc(id) // documento dentro da coleção que possui o id desse componente
+      .delete() // exclui
+      .then(() => { // callback
+        setTimeout(() => { // timeout para haver fluidez de tela
+          this.$emit('deleted'); // emite um evento avisando que o card foi deletado
+          this.editable = false;
+          this.resp = null; // termina o load
+        }, 1000)
       });
     },
+
     saveChanges (id) {
-      this.resp = false;
-      if (id) {
-        db.collection('cards').doc(id).update({
+      this.resp = false; // inicia o load
+      if (id) { // verifica se o cartao tem um id
+        db
+        .collection('cards')
+        .doc(id)
+        .update({ // se sim, faz o update das informações do cartao
           firstTime: false,
           title: this.config.title,
           text: this.config.text,
-          badge: this.computedBadge[0],
+          badgesId: this.selectedBadges,
         }).then(docRef => {
           setTimeout(() => {
-            this.$emit('saved');
-            this.editable = false;
+            this.$emit('saved'); // emite um evento que indica que o cartao foi salvo
+            this.editable = false; 
             this.resp = null;
           }, 1000)
         }).catch(error => {
           console.log(error);
         });
       } else {
-        db.collection('cards').add({
+        db.collection('cards').add({ // se não, adiciona um novo no firestore
           firstTime: false,
           title: this.config.title,
           text: this.config.text,
-          badge: this.computedBadge[0],
+          badgesId: this.selectedBadges,
           createdAt: this.config.createdAt
         }).then(docRef => {
           setTimeout(() => {
@@ -126,21 +143,39 @@ export default {
         });
       }
     },
-    editCard () {
-      this.editable = true;
+
+    editCard () { // função para editar o cartão
+      this.editable = true; // altera a variável de controle do modal de edição do cartão
     },
+
     cancelEdit () {
       this.editable = false;
     }
   },
   mounted () {
-    this.cat = this.config.badge.id;
+    this.cat = this.config.badgesId;
   },
   computed: {
-    computedBadge: function() {
-      return this.badges.filter((badge) => {
-        return badge.label == this.cat;
+    // descobrir quais badges foram selecionadas
+    selectedBadges: function() {
+      let aux = [];
+      this.badges.forEach( badge => {
+        this.cat.forEach( cat => {
+          badge.id == cat ? aux.push(cat) : ''
+        });
       });
+      return aux;
+    },
+
+    // pega as badgesIds e tras as badges completas correspondentes
+    cardBadges: function () {
+      let aux = []; // variavel auxiliar
+      this.badges.forEach( badge => { // percorre o array badge
+        this.cat.forEach( cat  => { // percorre o array cat que possui os badgesIds do cartao
+          badge.id == cat ? aux.push(badge) : '' // se badge.id == cat insere o badge no array auxiliar
+        });
+      });
+      return aux; // retorna o array aux
     }
   },
 };
