@@ -50,7 +50,7 @@
                     <button class="btn btn-link text-danger" @click.prevent="removeCard(config.id)">Delete</button>
                   </div>
                   <div class="col-auto p-0">
-                    <button class="btn btn-link" @click.prevent="cancelEdit()">Cancel</button>
+                    <button class="btn btn-link" @click.prevent="cancelEdit()" v-if="!config.firstTime">Cancel</button>
                     <button class="btn btn-primary" type="submit">Save card</button>
                   </div>
                 </div>
@@ -91,18 +91,22 @@ export default {
   methods: {
     // método para deletar um card
     removeCard (id) {
-      this.resp = false; //inicia o load
-      db //firestore
-      .collection("cards") // coleção 'cards'
-      .doc(id) // documento dentro da coleção que possui o id desse componente
-      .delete() // exclui
-      .then(() => { // callback
-        setTimeout(() => { // timeout para haver fluidez de tela
-          this.$emit('deleted'); // emite um evento avisando que o card foi deletado
-          this.editable = false;
-          this.resp = null; // termina o load
-        }, 1000)
-      });
+      if (id) {
+        this.resp = false; //inicia o load
+        db //firestore
+        .collection("cards") // coleção 'cards'
+        .doc(id) // documento dentro da coleção que possui o id desse componente
+        .delete() // exclui
+        .then(() => { // callback
+          setTimeout(() => { // timeout para haver fluidez de tela
+            this.$emit('deleted'); // emite um evento avisando que o card foi deletado
+            this.editable = false;
+            this.resp = null; // termina o load
+          }, 1000)
+        });
+      } else {
+        this.$emit('canceled');
+      }
     },
 
     saveChanges (id) {
