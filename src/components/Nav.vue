@@ -17,6 +17,11 @@ import { db } from '../main'
 
 export default {
     name: 'Nav',
+    data () {
+        return {
+            search: ''
+        }
+    },
     props: {
         btnNew: Boolean
     },
